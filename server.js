@@ -4,33 +4,28 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const UPSTREAM =
-    "https://renderproxy-pre1.onrender.com/";
-
-
-// ============================================================
-// 共通
-// ============================================================
+  "https://renderproxy-pre1.onrender.com/";
 
 app.use(express.json({
-    limit: "20mb"
+  limit: "25mb"
 }));
 
 
 // ============================================================
-// 操作画面
+// メイン画面
 // ============================================================
 
 app.get("/", (req, res) => {
-    res.type("html").send(`
+  res.type("html").send(`
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
+
 <meta charset="UTF-8">
 
 <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
+  name="viewport"
+  content="width=device-width, initial-scale=1"
 >
 
 <title>Ijiru Viewer</title>
@@ -38,357 +33,356 @@ app.get("/", (req, res) => {
 <style>
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html,
 body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: #111;
-    color: #eee;
-    font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
+  margin: 0;
+  width: 100%;
+  height: 100%;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+
+  background: #111;
+  color: #eee;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 
-/* ================================
-   上部
-================================ */
+/* =========================================
+   操作画面
+========================================= */
 
-#top {
-    flex: 0 0 auto;
+#toolbar {
+  flex: 0 0 auto;
 
-    background: #181818;
+  padding: 8px;
 
-    border-bottom:
-        1px solid #333;
+  background: #181818;
 
-    padding: 8px;
+  border-bottom:
+    1px solid #333;
 }
 
 
-/* URLバー */
+/* URL */
 
-#urlbar {
-    display: flex;
-    gap: 6px;
+#urlRow {
+  display: flex;
+  gap: 6px;
 }
 
 #url {
-    flex: 1;
+  flex: 1;
+  min-width: 0;
 
-    min-width: 0;
+  padding: 9px 11px;
 
-    border:
-        1px solid #444;
+  background: #292929;
+  color: white;
 
-    border-radius: 7px;
+  border:
+    1px solid #444;
 
-    background: #292929;
-    color: white;
+  border-radius: 7px;
 
-    padding: 9px 11px;
+  outline: none;
 
-    font-size: 15px;
-
-    outline: none;
+  font-size: 15px;
 }
 
 #url:focus {
-    border-color: #52a8ff;
+  border-color: #55aaff;
 }
 
 
 /* ボタン */
 
 button {
-    border:
-        1px solid #444;
+  padding: 8px 12px;
 
-    border-radius: 7px;
+  border:
+    1px solid #444;
 
-    background: #292929;
-    color: #eee;
+  border-radius: 7px;
 
-    padding: 8px 13px;
+  background: #292929;
+  color: white;
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 button:hover {
-    background: #383838;
+  background: #383838;
 }
 
-button.primary {
-    background: #1473e6;
-    border-color: #1473e6;
-    color: white;
+#openButton {
+  background: #1473e6;
+
+  border-color:
+    #1473e6;
 }
 
 
-/* ================================
+/* =========================================
    設定
-================================ */
+========================================= */
 
 #settings {
-    display: flex;
+  display: flex;
+  flex-wrap: wrap;
 
-    flex-wrap: wrap;
+  align-items: center;
 
-    align-items: center;
+  gap: 12px;
 
-    gap: 12px;
-
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .setting {
-    display: flex;
+  display: flex;
 
-    align-items: center;
+  align-items: center;
 
-    gap: 5px;
+  gap: 5px;
 
-    font-size: 13px;
+  font-size: 13px;
 }
 
-.setting input[type="color"] {
-    width: 35px;
-    height: 27px;
+input[type="color"] {
+  width: 36px;
+  height: 28px;
 
-    border: 0;
-    padding: 0;
+  padding: 0;
 
-    background: transparent;
+  border: 0;
+
+  background: transparent;
 }
 
-.setting input[type="range"] {
-    width: 100px;
+input[type="range"] {
+  width: 100px;
 }
 
 #wallpaper {
-    max-width: 190px;
+  max-width: 180px;
 }
 
 
-/* ================================
+/* =========================================
    ステータス
-================================ */
+========================================= */
 
 #status {
-    margin-top: 6px;
+  margin-top: 6px;
 
-    min-height: 17px;
+  min-height: 17px;
 
-    font-size: 12px;
+  color: #aaa;
 
-    color: #aaa;
+  font-size: 12px;
 }
 
 
-/* ================================
-   Web表示
-================================ */
+/* =========================================
+   ブラウザ部分
+========================================= */
 
 #viewer {
-    flex: 1;
+  flex: 1;
 
-    width: 100%;
+  width: 100%;
 
-    border: 0;
+  border: 0;
 
-    background: white;
+  background: #111;
 }
 
-
-/* Chromebookなど狭めの画面 */
 
 @media(max-width: 700px) {
 
-    #settings {
-        gap: 8px;
-    }
+  #settings {
+    gap: 8px;
+  }
 
-    .setting {
-        font-size: 12px;
-    }
+  .setting {
+    font-size: 12px;
+  }
 
 }
 
 </style>
+
 </head>
 
 
 <body>
 
+<div id="toolbar">
 
-<div id="top">
+  <div id="urlRow">
 
-    <div id="urlbar">
+    <button
+      id="reloadButton"
+      title="再読み込み"
+    >
+      ↻
+    </button>
 
-        <button
-            id="reloadButton"
-            title="再読み込み"
-        >
-            ↻
-        </button>
+    <input
+      id="url"
+      value="https://example.com/"
+      placeholder="https://example.com/"
+      autocomplete="off"
+    >
 
-        <input
-            id="url"
-            value="https://example.com/"
-            placeholder="https://example.com/"
-            autocomplete="off"
-        >
+    <button id="openButton">
+      開く
+    </button>
 
-        <button
-            id="openButton"
-            class="primary"
-        >
-            開く
-        </button>
-
-    </div>
+  </div>
 
 
-    <div id="settings">
+  <div id="settings">
 
-        <label class="setting">
-            背景
-            <input
-                type="color"
-                id="backgroundColor"
-                value="#151515"
-            >
-        </label>
+    <label class="setting">
+      文字
 
-
-        <label class="setting">
-            文字
-            <input
-                type="color"
-                id="textColor"
-                value="#eeeeee"
-            >
-        </label>
+      <input
+        id="textColor"
+        type="color"
+        value="#eeeeee"
+      >
+    </label>
 
 
-        <label class="setting">
-            リンク
-            <input
-                type="color"
-                id="linkColor"
-                value="#65caff"
-            >
-        </label>
+    <label class="setting">
+      リンク
+
+      <input
+        id="linkColor"
+        type="color"
+        value="#65caff"
+      >
+    </label>
 
 
-        <label class="setting">
-            暗さ
+    <label class="setting">
 
-            <input
-                type="range"
-                id="darkness"
-                min="0"
-                max="100"
-                value="45"
-            >
+      背景画像
 
-            <span id="darknessValue">
-                45%
-            </span>
-        </label>
+      <input
+        id="wallpaper"
+        type="file"
+        accept="image/*"
+      >
+
+    </label>
 
 
-        <label class="setting">
-            壁紙
-            <input
-                type="file"
-                id="wallpaper"
-                accept="image/*"
-            >
-        </label>
+    <label class="setting">
+
+      暗さ
+
+      <input
+        id="darkness"
+        type="range"
+        min="0"
+        max="100"
+        value="35"
+      >
+
+      <span id="darknessValue">
+        35%
+      </span>
+
+    </label>
 
 
-        <button id="removeWallpaper">
-            壁紙なし
-        </button>
+    <label class="setting">
+
+      背景除去
+
+      <input
+        id="removeBackgrounds"
+        type="checkbox"
+        checked
+      >
+
+    </label>
 
 
-        <button id="resetButton">
-            初期設定
-        </button>
-
-    </div>
+    <button id="removeWallpaper">
+      画像を外す
+    </button>
 
 
-    <div id="status">
-        URLを入力してください
-    </div>
+    <button id="resetButton">
+      リセット
+    </button>
+
+  </div>
+
+
+  <div id="status">
+    URLと背景画像を指定してください
+  </div>
 
 </div>
 
 
 <iframe
-    id="viewer"
-    sandbox="
-        allow-scripts
-        allow-forms
-        allow-modals
-        allow-popups
-        allow-downloads
-    "
+  id="viewer"
+  sandbox="
+    allow-scripts
+    allow-forms
+    allow-modals
+    allow-popups
+    allow-downloads
+  "
 ></iframe>
 
 
 <script>
 
 const viewer =
-    document.getElementById("viewer");
+  document.getElementById("viewer");
 
 const urlInput =
-    document.getElementById("url");
+  document.getElementById("url");
 
-const status =
-    document.getElementById("status");
+const statusElement =
+  document.getElementById("status");
 
-const backgroundInput =
-    document.getElementById(
-        "backgroundColor"
-    );
+const textColor =
+  document.getElementById("textColor");
 
-const textInput =
-    document.getElementById(
-        "textColor"
-    );
-
-const linkInput =
-    document.getElementById(
-        "linkColor"
-    );
-
-const darknessInput =
-    document.getElementById(
-        "darkness"
-    );
-
-const darknessValue =
-    document.getElementById(
-        "darknessValue"
-    );
+const linkColor =
+  document.getElementById("linkColor");
 
 const wallpaperInput =
-    document.getElementById(
-        "wallpaper"
-    );
+  document.getElementById("wallpaper");
+
+const darkness =
+  document.getElementById("darkness");
+
+const darknessValue =
+  document.getElementById(
+    "darknessValue"
+  );
+
+const removeBackgrounds =
+  document.getElementById(
+    "removeBackgrounds"
+  );
 
 
 let wallpaper = "";
@@ -397,437 +391,492 @@ let currentURL = "";
 
 
 // ============================================================
+// URL
+// ============================================================
+
+function normalizeURL(value) {
+
+  let url =
+    value.trim();
+
+  if (!url) {
+    return "";
+  }
+
+  if (
+    !/^https?:\\/\\//i.test(url)
+  ) {
+    url =
+      "https://" + url;
+  }
+
+  return url;
+
+}
+
+
+// ============================================================
 // 設定
 // ============================================================
 
 function getSettings() {
 
-    return {
+  return {
 
-        background:
-            backgroundInput.value,
+    textColor:
+      textColor.value,
 
-        text:
-            textInput.value,
+    linkColor:
+      linkColor.value,
 
-        link:
-            linkInput.value,
+    darkness:
+      Number(
+        darkness.value
+      ),
 
-        darkness:
-            Number(
-                darknessInput.value
-            ),
+    removeBackgrounds:
+      removeBackgrounds.checked,
 
-        wallpaper:
-            wallpaper
+    wallpaper:
+      wallpaper
 
-    };
+  };
 
 }
 
 
 function saveSettings() {
 
-    /*
-        壁紙は大きすぎると
-        localStorageに入らないので
-        色設定だけ保存
-    */
+  const settings =
+    getSettings();
 
-    const settings = getSettings();
+  /*
+    画像は容量が大きいため
+    localStorageには保存しない
+  */
 
-    delete settings.wallpaper;
+  delete settings.wallpaper;
 
-    localStorage.setItem(
-        "ijiru-settings",
-        JSON.stringify(settings)
-    );
+
+  localStorage.setItem(
+    "ijiru-settings-v2",
+    JSON.stringify(settings)
+  );
 
 }
 
 
 function loadSettings() {
 
-    try {
+  try {
 
-        const raw =
-            localStorage.getItem(
-                "ijiru-settings"
-            );
+    const data =
+      localStorage.getItem(
+        "ijiru-settings-v2"
+      );
 
-        if (!raw) {
-            return;
-        }
-
-        const settings =
-            JSON.parse(raw);
+    if (!data) {
+      return;
+    }
 
 
-        if (settings.background) {
-            backgroundInput.value =
-                settings.background;
-        }
+    const settings =
+      JSON.parse(data);
 
-        if (settings.text) {
-            textInput.value =
-                settings.text;
-        }
 
-        if (settings.link) {
-            linkInput.value =
-                settings.link;
-        }
+    if (settings.textColor) {
 
-        if (
-            settings.darkness !==
-            undefined
-        ) {
-
-            darknessInput.value =
-                settings.darkness;
-        }
-
-    } catch (e) {
-
-        console.error(e);
+      textColor.value =
+        settings.textColor;
 
     }
 
-}
 
+    if (settings.linkColor) {
 
-// ============================================================
-// URL
-// ============================================================
+      linkColor.value =
+        settings.linkColor;
 
-function normalizeURL(url) {
-
-    url = url.trim();
-
-    if (!url) {
-        return "";
     }
+
 
     if (
-        !/^https?:\\/\\//i.test(url)
+      settings.darkness !==
+      undefined
     ) {
 
-        url =
-            "https://" + url;
+      darkness.value =
+        settings.darkness;
+
     }
 
-    return url;
+
+    if (
+      settings.removeBackgrounds !==
+      undefined
+    ) {
+
+      removeBackgrounds.checked =
+        settings.removeBackgrounds;
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
 
 }
 
 
 // ============================================================
-// ページを開く
+// ページを取得
 // ============================================================
 
 async function openPage() {
 
-    let url =
-        normalizeURL(
-            urlInput.value
-        );
-
-    if (!url) {
-        return;
-    }
-
-    currentURL = url;
-
-    urlInput.value = url;
+  const url =
+    normalizeURL(
+      urlInput.value
+    );
 
 
-    status.textContent =
-        "取得中...";
+  if (!url) {
+    return;
+  }
 
 
-    try {
+  currentURL = url;
 
-        const settings =
-            getSettings();
-
-
-        const response =
-            await fetch(
-                "/api/page",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            url,
-                            ...settings
-                        })
-                }
-            );
+  urlInput.value = url;
 
 
-        if (!response.ok) {
+  statusElement.textContent =
+    "取得・加工中...";
 
-            const error =
-                await response.text();
 
-            throw new Error(error);
+  try {
+
+    const settings =
+      getSettings();
+
+
+    const response =
+      await fetch(
+        "/api/page",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              url,
+              ...settings
+            })
         }
+      );
 
 
-        const html =
-            await response.text();
+    const html =
+      await response.text();
 
 
-        viewer.srcdoc = html;
+    if (!response.ok) {
 
-
-        status.textContent =
-            "表示中: " + url;
-
-
-        saveSettings();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        status.textContent =
-            "エラー: " +
-            error.message;
+      throw new Error(html);
 
     }
 
-}
+
+    viewer.srcdoc =
+      html;
 
 
-// ============================================================
-// 設定変更
-// ============================================================
+    statusElement.textContent =
+      "表示中: " + url;
 
-function settingsChanged() {
-
-    darknessValue.textContent =
-        darknessInput.value + "%";
 
     saveSettings();
 
 
-    if (currentURL) {
+  } catch (error) {
 
-        /*
-            ページを再取得する。
+    console.error(error);
 
-            最初は確実に動く方法を使用。
-        */
+    statusElement.textContent =
+      "エラー: " +
+      error.message;
 
-        openPage();
-
-    }
+  }
 
 }
 
 
-backgroundInput.addEventListener(
-    "change",
-    settingsChanged
-);
-
-textInput.addEventListener(
-    "change",
-    settingsChanged
-);
-
-linkInput.addEventListener(
-    "change",
-    settingsChanged
-);
-
-
-darknessInput.addEventListener(
-    "input",
-    () => {
-
-        darknessValue.textContent =
-            darknessInput.value + "%";
-
-    }
-);
-
-
-darknessInput.addEventListener(
-    "change",
-    settingsChanged
-);
-
-
 // ============================================================
-// 壁紙
+// 壁紙選択
 // ============================================================
 
 wallpaperInput.addEventListener(
-    "change",
-    () => {
+  "change",
+  () => {
 
-        const file =
-            wallpaperInput.files[0];
-
-        if (!file) {
-            return;
-        }
+    const file =
+      wallpaperInput.files[0];
 
 
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-
-            alert(
-                "画像ファイルを選択してください"
-            );
-
-            return;
-        }
-
-
-        const reader =
-            new FileReader();
-
-
-        reader.onload = () => {
-
-            wallpaper =
-                reader.result;
-
-            if (currentURL) {
-                openPage();
-            }
-
-        };
-
-
-        reader.readAsDataURL(file);
-
+    if (!file) {
+      return;
     }
+
+
+    if (
+      !file.type.startsWith(
+        "image/"
+      )
+    ) {
+
+      alert(
+        "画像ファイルを選択してください"
+      );
+
+      return;
+    }
+
+
+    /*
+      Renderへ巨大な画像を送ると
+      重くなるため軽い上限
+    */
+
+    if (
+      file.size >
+      12 * 1024 * 1024
+    ) {
+
+      alert(
+        "画像が大きすぎます。12MB以下にしてください。"
+      );
+
+      wallpaperInput.value =
+        "";
+
+      return;
+    }
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      () => {
+
+        wallpaper =
+          reader.result;
+
+        if (currentURL) {
+
+          openPage();
+
+        }
+
+      };
+
+
+    reader.readAsDataURL(file);
+
+  }
+);
+
+
+// ============================================================
+// UI
+// ============================================================
+
+darkness.addEventListener(
+  "input",
+  () => {
+
+    darknessValue.textContent =
+      darkness.value +
+      "%";
+
+  }
+);
+
+
+darkness.addEventListener(
+  "change",
+  () => {
+
+    saveSettings();
+
+    if (currentURL) {
+      openPage();
+    }
+
+  }
+);
+
+
+textColor.addEventListener(
+  "change",
+  () => {
+
+    saveSettings();
+
+    if (currentURL) {
+      openPage();
+    }
+
+  }
+);
+
+
+linkColor.addEventListener(
+  "change",
+  () => {
+
+    saveSettings();
+
+    if (currentURL) {
+      openPage();
+    }
+
+  }
+);
+
+
+removeBackgrounds.addEventListener(
+  "change",
+  () => {
+
+    saveSettings();
+
+    if (currentURL) {
+      openPage();
+    }
+
+  }
 );
 
 
 document
-    .getElementById(
-        "removeWallpaper"
-    )
-    .addEventListener(
-        "click",
-        () => {
+  .getElementById(
+    "removeWallpaper"
+  )
+  .addEventListener(
+    "click",
+    () => {
 
-            wallpaper = "";
+      wallpaper = "";
 
-            wallpaperInput.value =
-                "";
+      wallpaperInput.value =
+        "";
 
-            if (currentURL) {
-                openPage();
-            }
+      if (currentURL) {
+        openPage();
+      }
 
-        }
-    );
-
-
-// ============================================================
-// 初期化
-// ============================================================
-
-document
-    .getElementById(
-        "resetButton"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            backgroundInput.value =
-                "#151515";
-
-            textInput.value =
-                "#eeeeee";
-
-            linkInput.value =
-                "#65caff";
-
-            darknessInput.value =
-                "45";
-
-            darknessValue.textContent =
-                "45%";
-
-            wallpaper = "";
-
-            wallpaperInput.value =
-                "";
-
-            saveSettings();
-
-            if (currentURL) {
-                openPage();
-            }
-
-        }
-    );
+    }
+  );
 
 
 document
-    .getElementById(
-        "openButton"
-    )
-    .addEventListener(
-        "click",
-        openPage
-    );
+  .getElementById(
+    "resetButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      textColor.value =
+        "#eeeeee";
+
+      linkColor.value =
+        "#65caff";
+
+      darkness.value =
+        "35";
+
+      darknessValue.textContent =
+        "35%";
+
+      removeBackgrounds.checked =
+        true;
+
+      wallpaper = "";
+
+      wallpaperInput.value =
+        "";
+
+      saveSettings();
+
+
+      if (currentURL) {
+        openPage();
+      }
+
+    }
+  );
 
 
 document
-    .getElementById(
-        "reloadButton"
-    )
-    .addEventListener(
-        "click",
-        () => {
+  .getElementById(
+    "openButton"
+  )
+  .addEventListener(
+    "click",
+    openPage
+  );
 
-            if (currentURL) {
-                openPage();
-            }
 
-        }
-    );
+document
+  .getElementById(
+    "reloadButton"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      if (currentURL) {
+        openPage();
+      }
+
+    }
+  );
 
 
 urlInput.addEventListener(
-    "keydown",
-    event => {
+  "keydown",
+  event => {
 
-        if (
-            event.key === "Enter"
-        ) {
+    if (
+      event.key === "Enter"
+    ) {
 
-            openPage();
-
-        }
+      openPage();
 
     }
+
+  }
 );
 
+
+// ============================================================
+// 起動時
+// ============================================================
 
 loadSettings();
 
 darknessValue.textContent =
-    darknessInput.value + "%";
+  darkness.value +
+  "%";
 
 </script>
 
@@ -838,255 +887,323 @@ darknessValue.textContent =
 
 
 // ============================================================
-// 加工API
+// ページ加工API
 // ============================================================
 
 app.post(
-    "/api/page",
-    async (req, res) => {
+  "/api/page",
+  async (req, res) => {
 
-        try {
+    try {
 
-            const {
-                url,
+      const {
 
-                background =
-                    "#151515",
+        url,
 
-                text =
-                    "#eeeeee",
+        textColor =
+          "#eeeeee",
 
-                link =
-                    "#65caff",
+        linkColor =
+          "#65caff",
 
-                darkness = 45,
+        darkness =
+          35,
 
-                wallpaper = ""
+        removeBackgrounds =
+          true,
 
-            } = req.body;
+        wallpaper =
+          ""
+
+      } = req.body;
 
 
-            // URLチェック
+      // ------------------------------------------
+      // URLチェック
+      // ------------------------------------------
 
-            if (!url) {
+      if (!url) {
 
-                return res
-                    .status(400)
-                    .send(
-                        "URLがありません"
-                    );
+        return res
+          .status(400)
+          .send(
+            "URLが指定されていません"
+          );
+
+      }
+
+
+      let parsedURL;
+
+
+      try {
+
+        parsedURL =
+          new URL(url);
+
+      } catch {
+
+        return res
+          .status(400)
+          .send(
+            "URLが正しくありません"
+          );
+
+      }
+
+
+      if (
+        parsedURL.protocol !==
+          "http:" &&
+        parsedURL.protocol !==
+          "https:"
+      ) {
+
+        return res
+          .status(400)
+          .send(
+            "HTTP/HTTPSのみ対応しています"
+          );
+
+      }
+
+
+      // ------------------------------------------
+      // renderproxy URL
+      // ------------------------------------------
+
+      const encoded =
+        Buffer
+          .from(
+            url,
+            "utf8"
+          )
+          .toString(
+            "base64"
+          );
+
+
+      const proxyURL =
+        UPSTREAM +
+        encoded;
+
+
+      console.log(
+        "Fetching:",
+        proxyURL
+      );
+
+
+      // ------------------------------------------
+      // 取得
+      // ------------------------------------------
+
+      const response =
+        await fetch(
+          proxyURL,
+          {
+            redirect:
+              "follow",
+
+            headers: {
+
+              "User-Agent":
+                "Mozilla/5.0"
 
             }
 
-
-            let parsed;
-
-            try {
-
-                parsed =
-                    new URL(url);
-
-            } catch {
-
-                return res
-                    .status(400)
-                    .send(
-                        "URLが正しくありません"
-                    );
-
-            }
+          }
+        );
 
 
-            if (
-                parsed.protocol !==
-                    "http:" &&
-                parsed.protocol !==
-                    "https:"
-            ) {
+      if (!response.ok) {
 
-                return res
-                    .status(400)
-                    .send(
-                        "HTTP/HTTPSのみ使用できます"
-                    );
+        return res
+          .status(502)
+          .send(
+            "renderproxy error: HTTP " +
+            response.status
+          );
 
-            }
+      }
 
 
-            // ================================================
-            // renderproxy用Base64
-            // ================================================
-
-            const encoded =
-                Buffer
-                    .from(
-                        url,
-                        "utf8"
-                    )
-                    .toString(
-                        "base64"
-                    );
+      let html =
+        await response.text();
 
 
-            const proxyURL =
-                UPSTREAM + encoded;
+      // ------------------------------------------
+      // 設定を安全化
+      // ------------------------------------------
+
+      const safeText =
+        validateColor(
+          textColor,
+          "#eeeeee"
+        );
 
 
-            console.log(
-                "Fetching:",
-                proxyURL
-            );
+      const safeLink =
+        validateColor(
+          linkColor,
+          "#65caff"
+        );
 
 
-            const response =
-                await fetch(
-                    proxyURL,
-                    {
-                        redirect:
-                            "follow",
-
-                        headers: {
-                            "User-Agent":
-                                "Mozilla/5.0"
-                        }
-                    }
-                );
+      const safeDarkness =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            Number(darkness) ||
+            0
+          )
+        ) / 100;
 
 
-            if (!response.ok) {
+      // ------------------------------------------
+      // 背景画像
+      // ------------------------------------------
 
-                return res
-                    .status(502)
-                    .send(
-                        "renderproxy returned HTTP " +
-                        response.status
-                    );
-
-            }
+      let wallpaperCSS = "";
 
 
-            let html =
-                await response.text();
+      if (
+        typeof wallpaper ===
+          "string" &&
 
+        /^data:image\\/[a-zA-Z0-9.+-]+;base64,/.test(
+          wallpaper
+        )
+      ) {
 
-            // ================================================
-            // CSS生成
-            // ================================================
+        wallpaperCSS = `
 
-            const safeBackground =
-                validColor(
-                    background,
-                    "#151515"
-                );
-
-            const safeText =
-                validColor(
-                    text,
-                    "#eeeeee"
-                );
-
-            const safeLink =
-                validColor(
-                    link,
-                    "#65caff"
-                );
-
-
-            const dark =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        Number(darkness) ||
-                        0
-                    )
-                ) / 100;
-
-
-            let backgroundCSS =
-                safeBackground;
-
-
-            /*
-                data:image/... のみ
-                壁紙として認める
-            */
-
-            let wallpaperCSS = "";
-
-
-            if (
-                typeof wallpaper ===
-                    "string" &&
-                wallpaper.startsWith(
-                    "data:image/"
-                )
-            ) {
-
-                const safeWallpaper =
-                    wallpaper.replace(
-                        /["'()\\\\]/g,
-                        char =>
-                            "\\\\" + char
-                    );
-
-
-                wallpaperCSS = `
 background-image:
-    linear-gradient(
-        rgba(0,0,0,${dark}),
-        rgba(0,0,0,${dark})
+
+  linear-gradient(
+    rgba(
+      0,
+      0,
+      0,
+      ${safeDarkness}
     ),
-    url("${safeWallpaper}")
-    !important;
+
+    rgba(
+      0,
+      0,
+      0,
+      ${safeDarkness}
+    )
+  ),
+
+  url("${wallpaper}")
+
+  !important;
+
 
 background-size:
-    cover !important;
+  cover !important;
+
 
 background-position:
-    center center !important;
+  center center !important;
+
 
 background-repeat:
-    no-repeat !important;
+  no-repeat !important;
+
 
 background-attachment:
-    fixed !important;
+  fixed !important;
+
 `;
 
-            }
+      }
 
 
-            const injection = `
+      // ------------------------------------------
+      // 背景除去CSS
+      // ------------------------------------------
+
+      let backgroundRemovalCSS =
+        "";
+
+
+      if (removeBackgrounds) {
+
+        backgroundRemovalCSS = `
+
+body,
+main,
+article,
+section {
+  background-color:
+    transparent !important;
+}
+
+`;
+
+      }
+
+
+      // ------------------------------------------
+      // 注入するもの
+      // ------------------------------------------
+
+      const injection = `
 
 <base href="${escapeHTML(url)}">
+
 
 <style id="ijiru-theme">
 
 /*
-    ページ本体
+ ==============================================
+ 最下層を壁紙にする
+ ==============================================
 */
 
 html {
-    background:
-        ${safeBackground}
-        !important;
-}
 
-body {
-    color:
-        ${safeText}
-        !important;
+  background-color:
+    #111 !important;
 
-    background-color:
-        ${backgroundCSS}
-        !important;
+  ${wallpaperCSS}
 
-    ${wallpaperCSS}
 }
 
 
 /*
-    一般的な文字
+ body自身は透明にして
+ html側の壁紙を見せる
+*/
+
+body {
+
+  background-color:
+    transparent !important;
+
+  color:
+    ${safeText}
+    !important;
+
+}
+
+
+/*
+ ==============================================
+ サイトの大きな背景を透明化
+ ==============================================
+*/
+
+${backgroundRemovalCSS}
+
+
+/*
+ ==============================================
+ 文字
+ ==============================================
 */
 
 body,
@@ -1100,218 +1217,360 @@ blockquote,
 article,
 section,
 main {
-    color:
-        ${safeText}
-        !important;
+
+  color:
+    ${safeText}
+    !important;
+
 }
 
 
 /*
-    リンク
+ ==============================================
+ リンク
+ ==============================================
 */
 
 a,
 a:link,
 a:visited {
-    color:
-        ${safeLink}
-        !important;
+
+  color:
+    ${safeLink}
+    !important;
+
 }
 
 
 /*
-    入力系
+ ==============================================
+ フォーム
+ ==============================================
 */
 
 input,
 textarea,
 select,
 button {
-    color:
-        ${safeText}
-        !important;
 
-    background-color:
-        rgba(
-            25,
-            25,
-            25,
-            0.88
-        )
-        !important;
+  color:
+    ${safeText}
+    !important;
 
-    border-color:
-        #555
-        !important;
 }
 
 
 /*
-    コード
-*/
-
-pre,
-code {
-    color:
-        ${safeText}
-        !important;
-
-    background-color:
-        rgba(
-            0,
-            0,
-            0,
-            0.55
-        )
-        !important;
-}
-
-
-/*
-    画像自体には
-    ダークフィルターをかけない
+ ==============================================
+ 背景画像を
+ img等には影響させない
+ ==============================================
 */
 
 img,
+picture,
 video,
-canvas {
-    color-scheme:
-        normal;
-}
+canvas,
+svg {
 
+  color-scheme:
+    normal;
 
-/*
-    Chromiumのフォーム等
-*/
-
-html {
-    color-scheme:
-        dark;
 }
 
 </style>
 
-`;
+
+<script id="ijiru-background-script">
+
+(() => {
+
+  const REMOVE_BACKGROUNDS =
+    ${removeBackgrounds ? "true" : "false"};
 
 
-            // ================================================
-            // HTMLに挿入
-            // ================================================
+  if (!REMOVE_BACKGROUNDS) {
 
-            if (
-                /<head(?:\\s[^>]*)?>/i
-                    .test(html)
-            ) {
+    return;
 
-                html =
-                    html.replace(
-                        /<head([^>]*)>/i,
-
-                        "<head$1>" +
-                        injection
-                    );
-
-            } else {
-
-                html =
-                    injection +
-                    html;
-
-            }
+  }
 
 
-            // ================================================
-            // 返す
-            // ================================================
+  /*
+   ============================================
+   背景色を持っている要素を調べる
+   ============================================
+  */
 
-            res.setHeader(
-                "Cache-Control",
-                "no-store"
-            );
+  function removeBackground(
+    element
+  ) {
 
-
-            res
-                .type("html")
-                .send(html);
-
-
-        } catch (error) {
-
-            console.error(error);
-
-
-            res
-                .status(500)
-                .send(
-                    "サーバーエラー: " +
-                    error.message
-                );
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// 補助
-// ============================================================
-
-function validColor(
-    color,
-    fallback
-) {
+    /*
+      画像・動画・入力欄などは
+      触らない
+    */
 
     if (
-        typeof color !==
-        "string"
+      element.matches(
+        "img, picture, video, canvas, svg, input, textarea, select, button"
+      )
     ) {
 
-        return fallback;
+      return;
+
+    }
+
+
+    const style =
+      getComputedStyle(
+        element
+      );
+
+
+    const color =
+      style.backgroundColor;
+
+
+    /*
+      完全透明なら元から背景なし
+    */
+
+    if (
+      color ===
+        "rgba(0, 0, 0, 0)" ||
+
+      color ===
+        "transparent"
+    ) {
+
+      return;
+
     }
 
 
     /*
-        color pickerから来る
-        #RRGGBBのみ受理
+      背景色だけ透明化。
+
+      background-image は
+      サイトの画像である可能性があるため
+      消さない。
     */
 
-    if (
-        /^#[0-9a-fA-F]{6}$/
-            .test(color)
-    ) {
+    element.style.setProperty(
+      "background-color",
+      "transparent",
+      "important"
+    );
 
-        return color;
+  }
+
+
+  function processPage() {
+
+    document
+      .querySelectorAll("*")
+      .forEach(
+        removeBackground
+      );
+
+  }
+
+
+  /*
+    最初に実行
+  */
+
+  processPage();
+
+
+  /*
+    JavaScriptで後から追加された
+    要素についても処理
+  */
+
+  const observer =
+    new MutationObserver(
+      mutations => {
+
+        for (
+          const mutation
+          of mutations
+        ) {
+
+          for (
+            const node
+            of mutation.addedNodes
+          ) {
+
+            if (
+              node.nodeType !==
+              Node.ELEMENT_NODE
+            ) {
+
+              continue;
+
+            }
+
+
+            removeBackground(
+              node
+            );
+
+
+            node
+              .querySelectorAll("*")
+              .forEach(
+                removeBackground
+              );
+
+          }
+
+        }
+
+      }
+    );
+
+
+  observer.observe(
+    document.documentElement,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
+
+})();
+
+<\\/script>
+
+`;
+
+
+      // ------------------------------------------
+      // HTMLへ注入
+      // ------------------------------------------
+
+      if (
+        /<head(?:\\s[^>]*)?>/i
+          .test(html)
+      ) {
+
+        html =
+          html.replace(
+            /<head([^>]*)>/i,
+
+            "<head$1>" +
+            injection
+          );
+
+      } else {
+
+        html =
+          injection +
+          html;
+
+      }
+
+
+      // ------------------------------------------
+      // 返す
+      // ------------------------------------------
+
+      res.setHeader(
+        "Cache-Control",
+        "no-store"
+      );
+
+
+      res
+        .type("html")
+        .send(html);
+
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      res
+        .status(500)
+        .send(
+          "サーバーエラー: " +
+          error.message
+        );
+
     }
 
+  }
+);
+
+
+// ============================================================
+// 色チェック
+// ============================================================
+
+function validateColor(
+  value,
+  fallback
+) {
+
+  if (
+    typeof value !==
+    "string"
+  ) {
 
     return fallback;
+
+  }
+
+
+  if (
+    /^#[0-9a-fA-F]{6}$/
+      .test(value)
+  ) {
+
+    return value;
+
+  }
+
+
+  return fallback;
+
 }
 
 
-function escapeHTML(str) {
+// ============================================================
+// HTMLエスケープ
+// ============================================================
 
-    return String(str)
+function escapeHTML(
+  value
+) {
 
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
+  return String(value)
 
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
 
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
 
-        .replaceAll(
-            ">",
-            "&gt;"
-        );
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    );
 
 }
 
@@ -1321,13 +1580,13 @@ function escapeHTML(str) {
 // ============================================================
 
 app.listen(
-    PORT,
-    () => {
+  PORT,
+  () => {
 
-        console.log(
-            "Ijiru Viewer running on port",
-            PORT
-        );
+    console.log(
+      "Ijiru Viewer started:",
+      PORT
+    );
 
-    }
+  }
 );
