@@ -1,17 +1,25 @@
 import express from "express";
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
 const UPSTREAM =
   "https://renderproxy-pre1.onrender.com/";
 
+
+// ============================================================
+// 5分キャッシュ
+// ============================================================
+
 const cache = new Map();
-const CACHE_TIME = 5 * 60 * 1000;
+
+const CACHE_TIME =
+  5 * 60 * 1000;
 
 
 // ============================================================
-// メイン画面
+// メインUI
 // ============================================================
 
 app.get("/", (req, res) => {
@@ -29,26 +37,38 @@ app.get("/", (req, res) => {
   content="width=device-width, initial-scale=1"
 >
 
-<title>Ijiru Viewer v4</title>
+<title>Ijiru Viewer</title>
+
 
 <style>
+
+/* ==========================================================
+   基本
+========================================================== */
 
 * {
   box-sizing: border-box;
 }
 
+
 html,
 body {
   margin: 0;
+
   width: 100%;
   height: 100%;
+
+  overflow: hidden;
 }
+
 
 body {
   display: flex;
+
   flex-direction: column;
 
   background: #111;
+
   color: #eee;
 
   font-family:
@@ -58,9 +78,9 @@ body {
 }
 
 
-/* =========================================================
-   ツールバー
-========================================================= */
+/* ==========================================================
+   操作パネル
+========================================================== */
 
 #toolbar {
   flex: 0 0 auto;
@@ -74,14 +94,20 @@ body {
 }
 
 
+/* ==========================================================
+   URL
+========================================================== */
+
 #urlRow {
   display: flex;
+
   gap: 6px;
 }
 
 
 #url {
   flex: 1;
+
   min-width: 0;
 
   padding: 9px 11px;
@@ -89,60 +115,81 @@ body {
   border:
     1px solid #444;
 
-  border-radius: 7px;
+  border-radius:
+    7px;
 
-  background: #292929;
-  color: white;
+  background:
+    #292929;
 
-  outline: none;
+  color:
+    white;
 
-  font-size: 15px;
+  outline:
+    none;
+
+  font-size:
+    15px;
 }
 
 
 #url:focus {
-  border-color: #55aaff;
+  border-color:
+    #55aaff;
 }
 
 
-/* =========================================================
+/* ==========================================================
    ボタン
-========================================================= */
+========================================================== */
 
 button {
-  padding: 8px 12px;
+  padding:
+    8px 12px;
 
   border:
     1px solid #444;
 
-  border-radius: 7px;
+  border-radius:
+    7px;
 
-  background: #292929;
-  color: white;
+  background:
+    #292929;
 
-  cursor: pointer;
+  color:
+    white;
+
+  cursor:
+    pointer;
+
+  white-space:
+    nowrap;
 }
 
 
 button:hover {
-  background: #383838;
+  background:
+    #383838;
 }
 
 
 #open {
-  background: #1473e6;
-  border-color: #1473e6;
+  background:
+    #1473e6;
+
+  border-color:
+    #1473e6;
 }
 
 
-#fullscreen {
-  background: #263238;
+#viewMode {
+  background:
+    #273746;
 }
 
 
-/* =========================================================
+/* ==========================================================
    設定
-========================================================= */
+========================================================== */
 
 #settings {
   display: flex;
@@ -153,7 +200,8 @@ button:hover {
 
   gap: 12px;
 
-  margin-top: 8px;
+  margin-top:
+    8px;
 }
 
 
@@ -164,7 +212,8 @@ button:hover {
 
   gap: 5px;
 
-  font-size: 13px;
+  font-size:
+    13px;
 }
 
 
@@ -176,165 +225,104 @@ input[type="color"] {
 
   border: 0;
 
-  background: transparent;
+  background:
+    transparent;
 }
 
 
 input[type="range"] {
-  width: 100px;
+  width:
+    100px;
 }
 
 
 #wallpaper {
-  max-width: 180px;
+  max-width:
+    180px;
 }
 
 
-/* =========================================================
+/* ==========================================================
    ステータス
-========================================================= */
+========================================================== */
 
 #status {
-  min-height: 17px;
+  min-height:
+    17px;
 
-  margin-top: 6px;
+  margin-top:
+    6px;
 
-  color: #aaa;
+  color:
+    #aaa;
 
-  font-size: 12px;
+  font-size:
+    12px;
 }
 
 
-/* =========================================================
-   Viewer
-========================================================= */
+/* ==========================================================
+   ページ表示領域
+========================================================== */
 
 #viewerContainer {
-  position: relative;
-
   flex: 1;
 
-  min-height: 0;
+  min-height:
+    0;
 
-  width: 100%;
+  width:
+    100%;
 
-  background: #111;
+  background:
+    #111;
 }
 
 
 #viewer {
   display: block;
 
-  width: 100%;
-  height: 100%;
+  width:
+    100%;
 
-  border: 0;
-
-  background: #111;
-}
-
-
-/* =========================================================
-   全画面
-========================================================= */
-
-#viewerContainer:fullscreen {
-  width: 100vw;
-  height: 100vh;
-
-  background: #111;
-}
-
-
-#viewerContainer:-webkit-full-screen {
-  width: 100vw;
-  height: 100vh;
-
-  background: #111;
-}
-
-
-#exitFullscreen {
-  display: none;
-
-  position: absolute;
-
-  top: 12px;
-  right: 12px;
-
-  z-index: 999999;
-
-  padding: 9px 13px;
+  height:
+    100%;
 
   border:
-    1px solid rgba(
-      255,
-      255,
-      255,
-      0.25
-    );
-
-  border-radius: 8px;
+    0;
 
   background:
-    rgba(
-      0,
-      0,
-      0,
-      0.72
-    );
-
-  color: white;
-
-  backdrop-filter:
-    blur(6px);
-
-  box-shadow:
-    0 2px 10px
-    rgba(
-      0,
-      0,
-      0,
-      0.35
-    );
+    #111;
 }
 
 
-#viewerContainer:fullscreen
-#exitFullscreen {
-  display: block;
-}
-
-
-#viewerContainer:-webkit-full-screen
-#exitFullscreen {
-  display: block;
-}
-
-
-#exitFullscreen:hover {
-  background:
-    rgba(
-      40,
-      40,
-      40,
-      0.9
-    );
-}
-
-
-/* =========================================================
-   スマホ / Chromebook狭画面
-========================================================= */
+/* ==========================================================
+   Chromebook等
+========================================================== */
 
 @media(max-width: 700px) {
 
   #settings {
-    gap: 8px;
+    gap:
+      8px;
   }
 
+
   .setting {
-    font-size: 12px;
+    font-size:
+      12px;
+  }
+
+
+  #urlRow {
+    gap:
+      4px;
+  }
+
+
+  button {
+    padding:
+      8px 9px;
   }
 
 }
@@ -347,13 +335,21 @@ input[type="range"] {
 <body>
 
 
+<!-- ======================================================
+     操作パネル
+====================================================== -->
+
 <div id="toolbar">
+
+
+  <!-- URL -->
 
   <div id="urlRow">
 
+
     <button
       id="reload"
-      title="再取得"
+      title="サイトを再取得"
     >
       ↻
     </button>
@@ -373,14 +369,17 @@ input[type="range"] {
 
 
     <button
-      id="fullscreen"
-      title="閲覧部分を全画面表示"
+      id="viewMode"
+      title="操作UIを隠す。ブラウザを再読み込みすると戻ります。"
     >
-      ⛶ 全画面
+      👁 閲覧モード
     </button>
+
 
   </div>
 
+
+  <!-- 設定 -->
 
   <div id="settings">
 
@@ -465,6 +464,7 @@ input[type="range"] {
       リセット
     </button>
 
+
   </div>
 
 
@@ -472,13 +472,19 @@ input[type="range"] {
     待機中
   </div>
 
+
 </div>
 
+
+<!-- ======================================================
+     Webページ
+====================================================== -->
 
 <div id="viewerContainer">
 
   <iframe
     id="viewer"
+
     sandbox="
       allow-scripts
       allow-forms
@@ -489,11 +495,6 @@ input[type="range"] {
     "
   ></iframe>
 
-
-  <button id="exitFullscreen">
-    × 全画面終了
-  </button>
-
 </div>
 
 
@@ -503,15 +504,15 @@ input[type="range"] {
 // Elements
 // ============================================================
 
-const viewer =
+const toolbar =
   document.getElementById(
-    "viewer"
+    "toolbar"
   );
 
 
-const viewerContainer =
+const viewer =
   document.getElementById(
-    "viewerContainer"
+    "viewer"
   );
 
 
@@ -563,9 +564,16 @@ const removeBackground =
   );
 
 
-let wallpaper = "";
+// ============================================================
+// State
+// ============================================================
 
-let currentURL = "";
+let wallpaper =
+  "";
+
+
+let currentURL =
+  "";
 
 
 // ============================================================
@@ -605,11 +613,13 @@ function normalizeURL(
 
 // ============================================================
 // 設定保存
+//
+// 閲覧モード状態は保存しない。
 // ============================================================
 
 function saveSettings() {
 
-  const data = {
+  const settings = {
 
     text:
       textColor.value,
@@ -627,9 +637,9 @@ function saveSettings() {
 
 
   localStorage.setItem(
-    "ijiru-v4",
+    "ijiru-settings-v5",
     JSON.stringify(
-      data
+      settings
     )
   );
 
@@ -644,49 +654,58 @@ function loadSettings() {
 
   try {
 
-    const data =
+    const settings =
       JSON.parse(
+
         localStorage.getItem(
-          "ijiru-v4"
-        ) ||
+          "ijiru-settings-v5"
+        )
+
+        ||
+
         "{}"
+
       );
 
 
-    if (data.text) {
+    if (
+      settings.text
+    ) {
 
       textColor.value =
-        data.text;
-
-    }
-
-
-    if (data.link) {
-
-      linkColor.value =
-        data.link;
+        settings.text;
 
     }
 
 
     if (
-      data.darkness !==
+      settings.link
+    ) {
+
+      linkColor.value =
+        settings.link;
+
+    }
+
+
+    if (
+      settings.darkness !==
       undefined
     ) {
 
       darkness.value =
-        data.darkness;
+        settings.darkness;
 
     }
 
 
     if (
-      data.removeBackground !==
+      settings.removeBackground !==
       undefined
     ) {
 
       removeBackground.checked =
-        data.removeBackground;
+        settings.removeBackground;
 
     }
 
@@ -712,7 +731,8 @@ function getDocument() {
   try {
 
     return (
-      viewer.contentDocument ||
+      viewer.contentDocument
+      ||
       viewer.contentWindow.document
     );
 
@@ -732,9 +752,9 @@ function getDocument() {
 
 
 // ============================================================
-// テーマ適用
+// テーマ
 //
-// renderproxyにはアクセスしない。
+// Render / renderproxyへの通信は発生しない。
 // ============================================================
 
 function applyTheme() {
@@ -748,16 +768,80 @@ function applyTheme() {
   }
 
 
-  const old =
+  // ----------------------------------------------------------
+  // 古いCSSを削除
+  // ----------------------------------------------------------
+
+  const oldTheme =
     doc.getElementById(
       "ijiru-live-theme"
     );
 
 
-  if (old) {
-    old.remove();
+  if (
+    oldTheme
+  ) {
+
+    oldTheme.remove();
+
   }
 
+
+  // ----------------------------------------------------------
+  // 暗さ
+  // ----------------------------------------------------------
+
+  const dark =
+    Math.max(
+      0,
+      Math.min(
+        100,
+
+        Number(
+          darkness.value
+        )
+      )
+    )
+    /
+    100;
+
+
+  // ----------------------------------------------------------
+  // 背景
+  // ----------------------------------------------------------
+
+  let backgroundImage =
+    "none";
+
+
+  if (
+    wallpaper
+  ) {
+
+    backgroundImage =
+
+      "linear-gradient(" +
+
+      "rgba(0,0,0," +
+      dark +
+      ")," +
+
+      "rgba(0,0,0," +
+      dark +
+      ")" +
+
+      ")," +
+
+      "url('" +
+      wallpaper +
+      "')";
+
+  }
+
+
+  // ----------------------------------------------------------
+  // CSS
+  // ----------------------------------------------------------
 
   const style =
     doc.createElement(
@@ -769,62 +853,38 @@ function applyTheme() {
     "ijiru-live-theme";
 
 
-  const dark =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        Number(
-          darkness.value
-        )
-      )
-    ) / 100;
-
-
-  let backgroundImage =
-    "none";
-
-
-  if (wallpaper) {
-
-    backgroundImage =
-      "linear-gradient(" +
-      "rgba(0,0,0," +
-      dark +
-      ")," +
-      "rgba(0,0,0," +
-      dark +
-      ")" +
-      ")," +
-      "url('" +
-      wallpaper +
-      "')";
-
-  }
-
-
   style.textContent = \`
 
 html {
 
   background-color:
-    #111 !important;
+    #111
+    !important;
+
 
   background-image:
     \${backgroundImage}
     !important;
 
+
   background-size:
-    cover !important;
+    cover
+    !important;
+
 
   background-position:
-    center center !important;
+    center center
+    !important;
+
 
   background-repeat:
-    no-repeat !important;
+    no-repeat
+    !important;
+
 
   background-attachment:
-    fixed !important;
+    fixed
+    !important;
 
 }
 
@@ -871,12 +931,18 @@ a:visited {
 
 
   (
-    doc.head ||
+    doc.head
+    ||
     doc.documentElement
-  ).appendChild(
+  )
+  .appendChild(
     style
   );
 
+
+  // ----------------------------------------------------------
+  // 背景除去
+  // ----------------------------------------------------------
 
   processBackgrounds(
     doc
@@ -906,28 +972,50 @@ function processBackgrounds(
     element => {
 
 
-      /*
-        前回変更分を戻す
-      */
+      // --------------------------------------------------------
+      // 前回の加工を解除
+      // --------------------------------------------------------
 
       if (
         element.dataset
-          .ijiruBackground
+          .ijiruOriginalBackground
           !== undefined
       ) {
 
-        element.style
-          .backgroundColor =
-            element.dataset
-              .ijiruBackground;
+        const original =
+          element.dataset
+            .ijiruOriginalBackground;
 
 
-        delete element
-          .dataset
-          .ijiruBackground;
+        if (
+          original
+        ) {
+
+          element.style
+            .backgroundColor =
+              original;
+
+        }
+
+        else {
+
+          element.style
+            .removeProperty(
+              "background-color"
+            );
+
+        }
+
+
+        delete element.dataset
+          .ijiruOriginalBackground;
 
       }
 
+
+      // --------------------------------------------------------
+      // OFFならここまで
+      // --------------------------------------------------------
 
       if (
         !removeBackground
@@ -939,10 +1027,9 @@ function processBackgrounds(
       }
 
 
-      /*
-        画像やフォームは
-        背景除去しない
-      */
+      // --------------------------------------------------------
+      // 消さないもの
+      // --------------------------------------------------------
 
       if (
         element.matches(
@@ -970,16 +1057,22 @@ function processBackgrounds(
           );
 
 
-      const bg =
+      const background =
         computed
           .backgroundColor;
 
 
-      if (
-        bg ===
-          "transparent" ||
+      // --------------------------------------------------------
+      // 元から透明なら何もしない
+      // --------------------------------------------------------
 
-        bg ===
+      if (
+        background ===
+          "transparent"
+
+        ||
+
+        background ===
           "rgba(0, 0, 0, 0)"
       ) {
 
@@ -988,17 +1081,32 @@ function processBackgrounds(
       }
 
 
-      element.dataset
-        .ijiruBackground =
-          element.style
-            .backgroundColor;
+      // --------------------------------------------------------
+      // 元のinline値を記録
+      // --------------------------------------------------------
 
+      element.dataset
+        .ijiruOriginalBackground =
+
+          element.style
+            .backgroundColor
+          ||
+          "";
+
+
+      // --------------------------------------------------------
+      // 透明化
+      // --------------------------------------------------------
 
       element.style
         .setProperty(
+
           "background-color",
+
           "transparent",
+
           "important"
+
         );
 
     }
@@ -1010,7 +1118,7 @@ function processBackgrounds(
 // ============================================================
 // ページを開く
 //
-// ここだけrenderproxyへ通信
+// ここだけrenderproxyへ通信。
 // ============================================================
 
 async function openPage(
@@ -1023,8 +1131,12 @@ async function openPage(
     );
 
 
-  if (!url) {
+  if (
+    !url
+  ) {
+
     return;
+
   }
 
 
@@ -1036,28 +1148,36 @@ async function openPage(
     url;
 
 
-  statusElement.textContent =
-    "取得中...";
+  statusElement
+    .textContent =
+      "取得中...";
 
 
   try {
 
+    const query =
+      new URLSearchParams({
+
+        url:
+          url,
+
+        force:
+          force
+            ?
+            "1"
+            :
+            "0"
+
+      });
+
+
     const response =
       await fetch(
-        "/api/page?" +
-        new URLSearchParams({
 
-          url:
-            url,
+        "/api/page?"
+        +
+        query.toString()
 
-          force:
-            force
-              ?
-              "1"
-              :
-              "0"
-
-        })
       );
 
 
@@ -1065,15 +1185,24 @@ async function openPage(
       await response.json();
 
 
-    if (!response.ok) {
+    if (
+      !response.ok
+    ) {
 
       throw new Error(
-        result.error ||
+
+        result.error
+        ||
         "取得できませんでした"
+
       );
 
     }
 
+
+    // ----------------------------------------------------------
+    // iframeロード完了後にテーマ適用
+    // ----------------------------------------------------------
 
     viewer.onload =
       () => {
@@ -1083,8 +1212,11 @@ async function openPage(
 
         statusElement
           .textContent =
-            "表示中: " +
-            currentURL +
+
+            "表示中: "
+            +
+            currentURL
+            +
             (
               result.cached
                 ?
@@ -1110,7 +1242,9 @@ async function openPage(
 
     statusElement
       .textContent =
-        "エラー: " +
+
+        "エラー: "
+        +
         error.message;
 
   }
@@ -1119,21 +1253,28 @@ async function openPage(
 
 
 // ============================================================
-// 壁紙
+// 背景画像
 // ============================================================
 
 wallpaperInput
   .addEventListener(
+
     "change",
+
     () => {
+
 
       const file =
         wallpaperInput
           .files[0];
 
 
-      if (!file) {
+      if (
+        !file
+      ) {
+
         return;
+
       }
 
 
@@ -1165,7 +1306,8 @@ wallpaperInput
 
 
           /*
-            再取得なし
+            ここではページを
+            再取得しない
           */
 
           applyTheme();
@@ -1178,53 +1320,77 @@ wallpaperInput
       );
 
     }
+
   );
 
 
 // ============================================================
-// リアルタイム設定
+// 色
 // ============================================================
 
 textColor
   .addEventListener(
+
     "input",
+
     applyTheme
+
   );
 
 
 linkColor
   .addEventListener(
+
     "input",
+
     applyTheme
+
   );
 
 
+// ============================================================
+// 暗さ
+// ============================================================
+
 darkness
   .addEventListener(
+
     "input",
+
     () => {
+
 
       darknessValue
         .textContent =
-          darkness.value +
+
+          darkness.value
+          +
           "%";
 
 
       applyTheme();
 
     }
-  );
 
-
-removeBackground
-  .addEventListener(
-    "change",
-    applyTheme
   );
 
 
 // ============================================================
-// 画像削除
+// 背景除去ON/OFF
+// ============================================================
+
+removeBackground
+  .addEventListener(
+
+    "change",
+
+    applyTheme
+
+  );
+
+
+// ============================================================
+// 壁紙解除
 // ============================================================
 
 document
@@ -1232,8 +1398,11 @@ document
     "removeImage"
   )
   .addEventListener(
+
     "click",
+
     () => {
+
 
       wallpaper =
         "";
@@ -1246,11 +1415,12 @@ document
       applyTheme();
 
     }
+
   );
 
 
 // ============================================================
-// Reset
+// リセット
 // ============================================================
 
 document
@@ -1258,8 +1428,11 @@ document
     "reset"
   )
   .addEventListener(
+
     "click",
+
     () => {
+
 
       textColor.value =
         "#eeeeee";
@@ -1293,6 +1466,7 @@ document
       applyTheme();
 
     }
+
   );
 
 
@@ -1305,7 +1479,9 @@ document
     "open"
   )
   .addEventListener(
+
     "click",
+
     () => {
 
       openPage(
@@ -1313,11 +1489,12 @@ document
       );
 
     }
+
   );
 
 
 // ============================================================
-// Reload
+// 強制再取得
 // ============================================================
 
 document
@@ -1325,7 +1502,9 @@ document
     "reload"
   )
   .addEventListener(
+
     "click",
+
     () => {
 
       if (
@@ -1339,6 +1518,7 @@ document
       }
 
     }
+
   );
 
 
@@ -1348,7 +1528,9 @@ document
 
 urlInput
   .addEventListener(
+
     "keydown",
+
     event => {
 
       if (
@@ -1363,142 +1545,33 @@ urlInput
       }
 
     }
+
   );
 
 
 // ============================================================
-// 全画面開始
+// 閲覧モード
+//
+// UIを消すだけ。
+// 状態は絶対に保存しない。
+// ページ再読み込みで復活する。
 // ============================================================
 
 document
   .getElementById(
-    "fullscreen"
+    "viewMode"
   )
   .addEventListener(
+
     "click",
-    async () => {
 
-      try {
-
-        if (
-          viewerContainer
-            .requestFullscreen
-        ) {
-
-          await viewerContainer
-            .requestFullscreen();
-
-        }
-
-        else if (
-          viewerContainer
-            .webkitRequestFullscreen
-        ) {
-
-          viewerContainer
-            .webkitRequestFullscreen();
-
-        }
-
-      }
-
-      catch (error) {
-
-        console.error(
-          error
-        );
-
-
-        statusElement
-          .textContent =
-            "全画面にできませんでした: " +
-            error.message;
-
-      }
-
-    }
-  );
-
-
-// ============================================================
-// 全画面終了
-// ============================================================
-
-document
-  .getElementById(
-    "exitFullscreen"
-  )
-  .addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        if (
-          document.fullscreenElement
-        ) {
-
-          await document
-            .exitFullscreen();
-
-        }
-
-        else if (
-          document
-            .webkitFullscreenElement
-        ) {
-
-          document
-            .webkitExitFullscreen();
-
-        }
-
-      }
-
-      catch (error) {
-
-        console.error(
-          error
-        );
-
-      }
-
-    }
-  );
-
-
-// ============================================================
-// Fullscreenイベント
-// ============================================================
-
-document
-  .addEventListener(
-    "fullscreenchange",
     () => {
 
-      if (
-        document
-          .fullscreenElement
-      ) {
-
-        statusElement
-          .textContent =
-            "全画面表示中";
-
-      }
-
-      else if (
-        currentURL
-      ) {
-
-        statusElement
-          .textContent =
-            "表示中: " +
-            currentURL;
-
-      }
+      toolbar.style.display =
+        "none";
 
     }
+
   );
 
 
@@ -1511,12 +1584,15 @@ loadSettings();
 
 darknessValue
   .textContent =
-    darkness.value +
+
+    darkness.value
+    +
     "%";
 
 </script>
 
 </body>
+
 </html>
 `);
 
@@ -1524,12 +1600,16 @@ darknessValue
 
 
 // ============================================================
-// Proxy API
+// ページ取得API
 // ============================================================
 
 app.get(
   "/api/page",
-  async (req, res) => {
+
+  async (
+    req,
+    res
+  ) => {
 
     try {
 
@@ -1542,11 +1622,13 @@ app.get(
         "1";
 
 
-      // ----------------------------------------
+      // --------------------------------------------------------
       // URLチェック
-      // ----------------------------------------
+      // --------------------------------------------------------
 
-      if (!url) {
+      if (
+        !url
+      ) {
 
         return res
           .status(400)
@@ -1566,7 +1648,9 @@ app.get(
       try {
 
         parsed =
-          new URL(url);
+          new URL(
+            url
+          );
 
       }
 
@@ -1586,7 +1670,9 @@ app.get(
 
       if (
         parsed.protocol !==
-          "http:" &&
+          "http:"
+
+        &&
 
         parsed.protocol !==
           "https:"
@@ -1604,9 +1690,9 @@ app.get(
       }
 
 
-      // ----------------------------------------
-      // Cache
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // キャッシュ
+      // --------------------------------------------------------
 
       const cached =
         cache.get(
@@ -1615,10 +1701,13 @@ app.get(
 
 
       if (
-        !force &&
-        cached &&
+        !force
+        &&
+        cached
+        &&
         Date.now() -
-          cached.time <
+          cached.time
+          <
           CACHE_TIME
       ) {
 
@@ -1641,9 +1730,9 @@ app.get(
       }
 
 
-      // ----------------------------------------
-      // Base64
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // renderproxy形式
+      // --------------------------------------------------------
 
       const encoded =
         Buffer
@@ -1657,7 +1746,8 @@ app.get(
 
 
       const proxyURL =
-        UPSTREAM +
+        UPSTREAM
+        +
         encoded;
 
 
@@ -1667,13 +1757,15 @@ app.get(
       );
 
 
-      // ----------------------------------------
-      // Fetch
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // renderproxyから取得
+      // --------------------------------------------------------
 
       const response =
         await fetch(
+
           proxyURL,
+
           {
 
             redirect:
@@ -1687,19 +1779,20 @@ app.get(
             }
 
           }
+
         );
 
 
-      // ----------------------------------------
-      // 429
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // Rate limit
+      // --------------------------------------------------------
 
       if (
         response.status ===
         429
       ) {
 
-        const retry =
+        const retryAfter =
           response.headers.get(
             "retry-after"
           );
@@ -1709,11 +1802,14 @@ app.get(
           "renderproxyがアクセス制限中です。";
 
 
-        if (retry) {
+        if (
+          retryAfter
+        ) {
 
           message +=
-            " Retry-After: " +
-            retry;
+            " Retry-After: "
+            +
+            retryAfter;
 
         }
 
@@ -1730,18 +1826,22 @@ app.get(
       }
 
 
-      // ----------------------------------------
-      // Other error
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // その他
+      // --------------------------------------------------------
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
 
         return res
           .status(502)
           .json({
 
             error:
-              "renderproxy returned HTTP " +
+
+              "renderproxy returned HTTP "
+              +
               response.status
 
           });
@@ -1753,21 +1853,25 @@ app.get(
         await response.text();
 
 
-      // ----------------------------------------
-      // Base URL
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // 相対URL対策
+      // --------------------------------------------------------
 
       const base =
-        '<base href="' +
+        '<base href="'
+        +
         escapeHTML(
           url
-        ) +
+        )
+        +
         '">';
 
 
       if (
         /<head(?:\\s[^>]*)?>/i
-          .test(html)
+          .test(
+            html
+          )
       ) {
 
         html =
@@ -1775,7 +1879,8 @@ app.get(
 
             /<head([^>]*)>/i,
 
-            "<head$1>" +
+            "<head$1>"
+            +
             base
 
           );
@@ -1785,18 +1890,20 @@ app.get(
       else {
 
         html =
-          base +
+          base
+          +
           html;
 
       }
 
 
-      // ----------------------------------------
-      // Cache
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // キャッシュ
+      // --------------------------------------------------------
 
       cache.set(
         url,
+
         {
 
           time:
@@ -1809,9 +1916,9 @@ app.get(
       );
 
 
-      // ----------------------------------------
+      // --------------------------------------------------------
       // 古いキャッシュ削除
-      // ----------------------------------------
+      // --------------------------------------------------------
 
       for (
         const [key, value]
@@ -1819,9 +1926,11 @@ app.get(
       ) {
 
         if (
-          Date.now() -
-            value.time >
-            CACHE_TIME
+          Date.now()
+          -
+          value.time
+          >
+          CACHE_TIME
         ) {
 
           cache.delete(
@@ -1833,9 +1942,9 @@ app.get(
       }
 
 
-      // ----------------------------------------
-      // Return
-      // ----------------------------------------
+      // --------------------------------------------------------
+      // 返却
+      // --------------------------------------------------------
 
       res.setHeader(
         "Cache-Control",
@@ -1867,7 +1976,9 @@ app.get(
         .json({
 
           error:
-            "サーバーエラー: " +
+
+            "サーバーエラー: "
+            +
             error.message
 
         });
@@ -1879,14 +1990,16 @@ app.get(
 
 
 // ============================================================
-// Escape
+// HTML Escape
 // ============================================================
 
 function escapeHTML(
   value
 ) {
 
-  return String(value)
+  return String(
+    value
+  )
 
     .replaceAll(
       "&",
@@ -1912,16 +2025,18 @@ function escapeHTML(
 
 
 // ============================================================
-// Start
+// 起動
 // ============================================================
 
 app.listen(
   PORT,
+
   () => {
 
     console.log(
-      "Ijiru Viewer v4"
+      "Ijiru Viewer v5"
     );
+
 
     console.log(
       "PORT:",
